@@ -1,0 +1,9 @@
+{
+    "name": "plugin-language-php",
+    "type": "plugin",
+    "author": "Jason Miesionczek <atmospherian@gmail.com>",
+    "vendor": "nebula",
+    "dependencies": {
+        "nebula": "1.*"
+    }
+}
