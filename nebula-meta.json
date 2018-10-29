@@ -3,6 +3,7 @@
     "type": "plugin",
     "author": "Jason Miesionczek <atmospherian@gmail.com>",
     "vendor": "nebula",
+    "description": "Adds PHP support to Nebula",
     "dependencies": {
         "nebula": "1.*"
     }
