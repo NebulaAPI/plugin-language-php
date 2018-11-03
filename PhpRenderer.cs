@@ -10,7 +10,7 @@ namespace Nebula.SDK.Renderers
 {
     public class PhpRenderer : AbstractRenderer
     {
-        public PhpRenderer(AbstractCompiler compiler, IRenderPlugin renderPlugin) : base(compiler, renderPlugin)
+        public PhpRenderer(AbstractCompiler compiler, IRendererExtension renderPlugin) : base(compiler, renderPlugin)
         {
         }
 
@@ -60,14 +60,14 @@ namespace Nebula.SDK.Renderers
             var args = string.Join(", ", function.Arguments.Select(a => RenderAbstractVariableDefinition(a)));
             var method = GetHttpMethod(function.Node.Method);
             var fname = function.Name.ToProperCase().ToPascalCase();
-            var prefix = ActiveConfig.Prefix;
+            var prefix = _activeConfig.Prefix;
             var url = function.Node.Url;
 
             WriteIndented($"{visibility} function {fname}({args}) : {rt}");
             WriteIndented("{");
-            IndentLevel++;
+            _indentLevel++;
             WriteIndented(
-                RenderPlugin.RenderAbstractFunction(
+                _rendererExtension.RenderAbstractFunction(
                     url,
                     prefix,
                     rt,
@@ -75,15 +75,15 @@ namespace Nebula.SDK.Renderers
                     function.Node.Args.Select(a => a.Name).ToList()
                 )
             );
-            IndentLevel--;
+            _indentLevel--;
             WriteIndented("}");
         }
 
         protected override void RenderAbstractNamespace(AbstractNamespace ns)
         {
-            CurrentOutput.AddRange(ns.Imports.Select(i => $"use {i};"));
-            CurrentOutput.AddRange(RenderPlugin.RenderClientImports().Select(i => $"use {i};"));
-            CurrentOutput.Add($"namespace {ns.Name};");
+            _currentOutput.AddRange(ns.Imports.Select(i => $"use {i};"));
+            _currentOutput.AddRange(_rendererExtension.RenderClientImports().Select(i => $"use {i};"));
+            _currentOutput.Add($"namespace {ns.Name};");
         }
 
         protected override void RenderAbstractProperty(AbstractProperty<EntityNode> prop)
@@ -93,36 +93,36 @@ namespace Nebula.SDK.Renderers
             var fieldNamePascal = prop.Name.ToProperCase().ToPascalCase();
             var fieldNameCamel = prop.Name.ToProperCase().ToCamelCase();
 
-            var projectName = Project.GetProperName();
+            var projectName = _project.GetProperName();
 
             WriteIndented($"private $_{fieldNameCamel};");
             WriteIndented(RenderDocBlock(
                 null,
                 new Dictionary<string, string>
                 {
-                    { "return", prop.DataType.Node.IsEntity ? $@"\{projectName}\{Meta.EntityLocation}\{rt}" : $"{rt}"}
+                    { "return", prop.DataType.Node.IsEntity ? $@"\{projectName}\{_meta.Configuration.EntityLocation}\{rt}" : $"{rt}"}
                 }
             ));
             WriteIndented($"public function get{fieldNamePascal}() : {rt}");
             WriteIndented("{");
-            IndentLevel++;
+            _indentLevel++;
             WriteIndented($"return $this->_{fieldNameCamel};");
-            IndentLevel--;
+            _indentLevel--;
             WriteIndented("}");
             WriteIndented(RenderDocBlock(
                 null,
                 new Dictionary<string, string>
                 {
-                    { "param", prop.DataType.Node.IsEntity ? $@"\{projectName}\{Meta.EntityLocation}\{rt} $value" : $"{rt} $value"},
+                    { "param", prop.DataType.Node.IsEntity ? $@"\{projectName}\{_meta.Configuration.EntityLocation}\{rt} $value" : $"{rt} $value"},
                     { "return", $"{prop.Parent.Name}"}
                 }
             ));
             WriteIndented($"public function set{fieldNamePascal}({rt} $value) : {prop.Parent.Name}");
             WriteIndented("{");
-            IndentLevel++;
+            _indentLevel++;
             WriteIndented($"$this->_{fieldNameCamel} = $value;");
             WriteIndented("return $this;");
-            IndentLevel--;
+            _indentLevel--;
             WriteIndented("}");
         }
 
@@ -133,16 +133,16 @@ namespace Nebula.SDK.Renderers
 
         protected override void RenderApiClass(AbstractClass<ApiNode> ac)
         {
-            ActiveConfig = ac.Config;
+            _activeConfig = ac.Config;
             RenderNode(ac.Namespace);
             WriteIndented($"class {ac.Name}Client");
             WriteIndented("{");
-            IndentLevel++;
+            _indentLevel++;
             RenderNodes<RootObject>(ac.TopOfClassExtra);
             RenderNodes<BaseProperty>(ac.Properties);
             RenderNode(ac.Constructor);
             RenderNodes<AbstractFunction>(ac.Functions);
-            IndentLevel--;
+            _indentLevel--;
             WriteIndented("}");
         }
 
@@ -151,9 +151,9 @@ namespace Nebula.SDK.Renderers
             RenderNode(ac.Namespace);
             WriteIndented($"class {ac.Name}");
             WriteIndented("{");
-            IndentLevel++;
+            _indentLevel++;
             RenderNodes<BaseProperty>(ac.Properties);
-            IndentLevel--;
+            _indentLevel--;
             WriteIndented("}");
         }
 
@@ -175,11 +175,11 @@ namespace Nebula.SDK.Renderers
             }
             WriteIndented($"class {genericClass.Name} {inherits}");
             WriteIndented("{");
-            IndentLevel++;
+            _indentLevel++;
             RenderGenericProperties(genericClass.Properties);
             RenderGenericConstructor(genericClass.Constructor);
             RenderGenericFunctions(genericClass.Functions);
-            IndentLevel--;
+            _indentLevel--;
             WriteIndented("}");
         }
 
@@ -193,9 +193,9 @@ namespace Nebula.SDK.Renderers
             var args = string.Join(", ", genericConstructor.Arguments.Select(a => RenderGenericVariableDefinition(a)));
             WriteIndented($"{genericConstructor.AccessModifier.ToString().ToLower()} function __construct({args})");
             WriteIndented("{");
-            IndentLevel++;
+            _indentLevel++;
             WriteIndented(genericConstructor.Body);
-            IndentLevel--;
+            _indentLevel--;
             WriteIndented("}");
         }
 

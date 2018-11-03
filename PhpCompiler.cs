@@ -19,15 +19,15 @@ namespace Nebula.SDK.Compiler.Objects.PHP
             var projectName = Project.GetProperName();
             
             var entityNamespace = new AbstractNamespace { 
-                Name = projectName + @"\" + TemplateMeta.EntityLocation
+                Name = projectName + @"\" + TemplateMeta.Configuration.EntityLocation
             };
 
             var clientNamespace = new AbstractNamespace {
-                Name = projectName + @"\" + TemplateMeta.ClientLocation,
+                Name = projectName + @"\" + TemplateMeta.Configuration.ClientLocation,
                 Imports = new List<string> {
                     
                     @"JsonMapper",
-                    $"{projectName}\\{TemplateMeta.EntityLocation}"
+                    $"{projectName}\\{TemplateMeta.Configuration.EntityLocation}"
                 }
             };
 

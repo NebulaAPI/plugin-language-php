@@ -1,6 +1,7 @@
 using Nebula.SDK.Compiler.Abstracts;
 using Nebula.SDK.Compiler.Objects.PHP;
 using Nebula.SDK.Interfaces;
+using Nebula.SDK.Plugin;
 using Nebula.SDK.Renderers;
 
 namespace plugin_language_php
@@ -17,9 +18,9 @@ namespace plugin_language_php
             return "php";
         }
 
-        public AbstractRenderer GetRenderer()
+        public AbstractRenderer GetRenderer(AbstractCompiler compiler, IRendererExtension rendererExtension)
         {
-            return null;
+            return new PhpRenderer(compiler, rendererExtension);
         }
     }
 }

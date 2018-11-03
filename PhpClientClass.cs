@@ -12,11 +12,11 @@ namespace Nebula.SDK.Compiler.Objects.PHP
 
             Functions.AddRange(RootNode.SearchByType<FunctionNode>().Select(f => new AbstractFunction(f)));
 
-            Properties.AddRange(Compiler.CompilerPlugin.GetProperties());
+            Properties.AddRange(Compiler.CompilerExtension.GetProperties());
 
-            Constructor = Compiler.CompilerPlugin.GetConstructor(RootNode.Name, Config);
+            Constructor = Compiler.CompilerExtension.GetConstructor(RootNode.Name, Config);
 
-            TopOfClassExtra.AddRange(Compiler.CompilerPlugin.GetTopOfClassExtra(Config));
+            TopOfClassExtra.AddRange(Compiler.CompilerExtension.GetTopOfClassExtra(Config));
         }
     }
 }
